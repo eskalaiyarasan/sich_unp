@@ -1,5 +1,5 @@
 #include "wrapper.h"
-void thread_create( const pthread_t *attr , void *(*startfn)(void *) , void *arg)
+void thread_create( const pthread_attr_t *attr , void *(*startfn)(void *) , void *arg)
 {
    typedef struct  sthread_handle
    {
@@ -50,7 +50,7 @@ int main( int argc ,char *argv[] )
 	int listenfd ;
 	int connfd;
 	struct sockaddr_in servaddr;
-
+	struct timeval timeout;
 	listenfd = Socket( AF_INET ,SOCK_STREAM , 0);
 
 	bzero(&servaddr , sizeof(servaddr) );
@@ -59,10 +59,15 @@ int main( int argc ,char *argv[] )
 	servaddr.sin_addr.s_addr = htonl( INADDR_ANY );
 	servaddr.sin_port =htons(7232);
 
+	timeout.tv_sec=1;
+	timeout.tv_usec=0;
+
 	Bind( listenfd , (SA *) &servaddr , sizeof(servaddr));
 
 	Listen(listenfd, LISTENQ);
 
+	if( setsockopt( listenfd , SOL_SOCKET , SO_SNDTIMEO, (char *) &timeout , sizeof(timeout) ) < 0 )
+		printf("error send timeout \n");
 	for(;;) {
 		connfd = Accept(listenfd , (SA*) NULL , NULL);
 		thread_create( NULL ,threadfn , (void *) connfd);

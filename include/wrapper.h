@@ -4,7 +4,7 @@
 int Socket( int family , int type , int protocol);
 
 int Bind( int sock_fd, SA *addr, int len) ;
-
+int Listen(int socket , int b);
 int Accept( int sock_fd , SA *addr , int *len) ;
 int Close( int sock_fd) ;
 
